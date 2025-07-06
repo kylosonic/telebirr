@@ -22,7 +22,7 @@ class DeviceCheckResult {
 }
 
 // Replace this with the actual device ID of the phone you want to allow
-const String allowedDeviceId = 'UP1A.231005.007';
+const String allowedDeviceId = 'AP3A.240905.015.A2';
 
 // Function to check if the current device is allowed
 Future<DeviceCheckResult> checkDeviceAllowed() async {
