@@ -245,7 +245,7 @@ class AmountInputScreenState extends State<AmountInputScreen> {
     final bank = args['bank'] ?? 'Unknown Bank';
     final account = args['account'] ?? 'N/A';
     final name = args['name'] ?? 'Unknown Recipient';
-    const currentBalance = '6215846.00';
+    const currentBalance = '45846.00';
 
     final Color bannerColor = _getBannerColor(bank);
     final String? logoAsset = bankLogos[bank];

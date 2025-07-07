@@ -1,11 +1,10 @@
-// lib/screens/confirmation_screen.dart
-
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:telebirr/models/transaction.dart';
 import 'package:telebirr/screens/pdf_utils.dart';
+import 'package:telebirr/services/balance_service.dart';
 import 'package:telebirr/services/db_helper.dart';
 
 class ConfirmationScreen extends StatefulWidget {
@@ -18,7 +17,6 @@ class ConfirmationScreen extends StatefulWidget {
 class ConfirmationScreenState extends State<ConfirmationScreen> {
   static const Color lightGreen = Color(0xFF8BC83D);
 
-  // Generated once per screen instance
   final DateTime transactionTime = DateTime.now();
   final String transactionNumber = _generateTransactionNumber();
 
@@ -91,6 +89,8 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
           fee: serviceFee + vatAmount,
         );
         await DBHelper().insertTxn(record);
+        final totalAmount = amount + serviceFee + vatAmount;
+        BalanceService().updateBalance(totalAmount);
       }
     });
   }
@@ -106,7 +106,6 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
     return txn;
   }
 
-  /// Calculates the service fee based on the transaction amount.
   double _calculateServiceFee(double amount) {
     const double vatRate = 0.15;
     if (amount < 1) {
@@ -218,7 +217,6 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
     final double vatAmount = serviceFee * vatRate;
     final double totalAmount = amount + serviceFee + vatAmount;
 
-    // Prepare data for PDF and DB
     final transactionData = {
       'transactionNumber': transactionNumber,
       'receiptNumber': transactionNumber,
@@ -268,9 +266,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
             TextButton.icon(
               icon: const Icon(Icons.share_outlined, color: lightGreen),
               label: const Text('Share', style: TextStyle(color: lightGreen)),
-              onPressed: () {
-                // TODO: implement share
-              },
+              onPressed: () {},
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:marquee/marquee.dart';
+import 'package:telebirr/services/balance_service.dart';
 import 'pay_for_merchant_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,7 +16,6 @@ class HomeScreenState extends State<HomeScreen> {
   bool _showEndekise = false;
   bool _showReward = false;
   bool _showBalance = false;
-  double balance = 6215846.00;
 
   final PageController _pageController = PageController(viewportFraction: 1.0);
   int _currentPage = 0;
@@ -233,7 +233,6 @@ class HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(bottom: 80),
               child: Column(
                 children: [
-                  // Top Logos
                   Container(
                     color: Colors.white,
                     padding: const EdgeInsets.all(2.5),
@@ -252,8 +251,6 @@ class HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-
-                  // Greeting & Balances
                   Container(
                     color: const Color(0xFF8BC83D),
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -261,7 +258,6 @@ class HomeScreenState extends State<HomeScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Greeting row...
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -292,9 +288,7 @@ class HomeScreenState extends State<HomeScreen> {
                                   ),
                                   onPressed: () {},
                                 ),
-                                // No SizedBox
                                 Transform.translate(
-                                  // Adjust the -4.0 value to increase or decrease the overlap
                                   offset: const Offset(-10.0, 0.0),
                                   child: Stack(
                                     clipBehavior: Clip.none,
@@ -317,9 +311,7 @@ class HomeScreenState extends State<HomeScreen> {
                                       ),
                                       Positioned(
                                         top: 4,
-                                        // You might need to adjust 'right' due to the translate
-                                        right:
-                                            4, // Adjusted from 0 because the whole Stack moved left
+                                        right: 4,
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 1,
@@ -347,9 +339,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 ),
-                                // You might need to adjust this SizedBox to compensate
-                                // Or remove it if 'Engl' should also move left.
-                                const SizedBox(width: 0), // Adjusted from 4
+                                const SizedBox(width: 0),
                                 const Text(
                                   'Engl',
                                   style: TextStyle(color: Colors.white),
@@ -362,8 +352,6 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-
-                        // Balance
                         const SizedBox(height: 0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -395,20 +383,25 @@ class HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  _showBalance ? '$balance' : '****',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                ValueListenableBuilder<double>(
+                                  valueListenable: BalanceService().balance,
+                                  builder: (context, balanceValue, child) {
+                                    return Text(
+                                      _showBalance
+                                          ? balanceValue.toStringAsFixed(2)
+                                          : '****',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
                           ],
                         ),
-
-                        // Endekise & Reward
                         const SizedBox(height: 0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -436,8 +429,6 @@ class HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-
-                  // Marquee
                   Container(
                     height: 15,
                     color: Colors.orange,
@@ -448,13 +439,10 @@ class HomeScreenState extends State<HomeScreen> {
                       velocity: 50.0,
                     ),
                   ),
-
-                  // Grids & Carousel
                   Container(
                     color: const Color(0xFFF5F5F5),
                     child: Column(
                       children: [
-                        // First Grid
                         Padding(
                           padding: const EdgeInsets.all(18),
                           child: GridView.count(
@@ -506,8 +494,6 @@ class HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-
-                              // **Zemen GEBEYA tile with larger image**
                               InkWell(
                                 onTap: () {},
                                 child: Container(
@@ -555,7 +541,6 @@ class HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
-
                               _buildGridItemWithImage(
                                 'Financial\nService\nwith\nDashen',
                                 'assets/images/dashen.png',
@@ -582,10 +567,8 @@ class HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 10),
                         _buildCarousel(),
-
                         GestureDetector(
                           onTap: () {},
                           child: Container(
@@ -605,8 +588,6 @@ class HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Second Grid...
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: GridView.count(
@@ -690,8 +671,6 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-          // Scan QR Button
           Positioned(
             bottom: 16,
             left: 16,
@@ -717,8 +696,6 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
-      // Bottom Nav Bar
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF8BC83D),
         type: BottomNavigationBarType.fixed,

@@ -1,9 +1,8 @@
-// lib/screens/merchant_confirmation_screen.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:telebirr/models/transaction.dart';
 import 'package:telebirr/screens/pdf_utils.dart';
+import 'package:telebirr/services/balance_service.dart';
 import 'package:telebirr/services/db_helper.dart';
 
 class MerchantConfirmationScreen extends StatefulWidget {
@@ -91,6 +90,7 @@ class MerchantConfirmationScreenState
           fee: 0.0,
         );
         await DBHelper().insertTxn(record);
+        BalanceService().updateBalance(amount);
       }
     });
   }
@@ -194,7 +194,6 @@ class MerchantConfirmationScreenState
     final formattedTime = formatDateTime(_transactionTime);
     final formattedAmount = formatAmount(amount);
 
-    // Build transactionData map for PDF & DB
     final transactionData = {
       'merchantId': merchantId,
       'operatorId': operatorId,
@@ -235,7 +234,7 @@ class MerchantConfirmationScreenState
                     timestamp: formattedTime,
                     pdfPath: pdfPath,
                     transactionNo: _transactionNumber,
-                    fee: 0.0, // Assuming no fee for this transaction
+                    fee: 0.0,
                   );
                   await DBHelper().insertTxn(record);
                 }
@@ -244,9 +243,7 @@ class MerchantConfirmationScreenState
             TextButton.icon(
               icon: const Icon(Icons.share_outlined, color: lightGreen),
               label: const Text('Share', style: TextStyle(color: lightGreen)),
-              onPressed: () {
-                // TODO: implement share functionality
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -304,9 +301,7 @@ class MerchantConfirmationScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   InkWell(
-                    onTap: () {
-                      // TODO: Give Tip
-                    },
+                    onTap: () {},
                     child: Row(
                       children: [
                         const Icon(
@@ -327,9 +322,7 @@ class MerchantConfirmationScreenState
                   ),
                   const SizedBox(width: 10),
                   InkWell(
-                    onTap: () {
-                      // TODO: Show QR Code
-                    },
+                    onTap: () {},
                     child: Row(
                       children: [
                         const Icon(Icons.qr_code, color: lightGreen),
@@ -356,9 +349,7 @@ class MerchantConfirmationScreenState
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.3,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Bill Share
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       side: BorderSide(color: lightGreen),

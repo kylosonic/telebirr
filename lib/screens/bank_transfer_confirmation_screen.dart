@@ -1,7 +1,3 @@
-// lib/screens/bank_transfer_confirmation_screen.dart
-
-// ignore_for_file: unused_import
-
 import 'dart:async';
 import 'dart:math';
 import 'dart:io';
@@ -11,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:telebirr/models/transaction.dart';
 import 'package:telebirr/screens/pdf_utils.dart';
+import 'package:telebirr/services/balance_service.dart';
 import 'package:telebirr/services/db_helper.dart';
 
 class BankTransferConfirmationScreen extends StatefulWidget {
@@ -29,7 +26,6 @@ class BankTransferConfirmationScreenState
   int _currentPage = 0;
   Timer? _carouselTimer;
 
-  // Generate a random transaction number for this session
   final String _transactionNumber = _generateTransactionNumber();
 
   static String _generateTransactionNumber() {
@@ -136,6 +132,8 @@ class BankTransferConfirmationScreenState
           fee: fee,
         );
         await DBHelper().insertTxn(record);
+        final totalAmount = baseAmt + fee;
+        BalanceService().updateBalance(totalAmount);
       }
     });
   }
@@ -232,20 +230,14 @@ class BankTransferConfirmationScreenState
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
         {};
-
-    // Extract arguments or provide defaults
     final rawAmount = args['amount']?.toString() ?? '0.0';
     final bank = args['bank'] ?? 'Unknown Bank';
     final account = args['account'] ?? 'N/A';
     final rawTime = args['transactionTime'] ?? DateTime.now().toIso8601String();
     final toName = args['name'] ?? 'User';
     final txnNum = _transactionNumber;
-
-    // Parse amounts
     final baseAmt = double.tryParse(rawAmount) ?? 0.0;
     final fmtBaseAmt = baseAmt.toStringAsFixed(2);
-
-    // Determine fee
     double fee;
     if (baseAmt < 100) {
       fee = 1.0;
@@ -256,17 +248,12 @@ class BankTransferConfirmationScreenState
     } else {
       fee = 9.0;
     }
-
-    // Service & VAT
     final serviceFee = fee * 0.8;
     final vatAmt = fee * 0.2;
     final totalAmt = baseAmt + fee;
-
     final fmtService = serviceFee.toStringAsFixed(2);
     final fmtVat = vatAmt.toStringAsFixed(2);
     final fmtTotal = totalAmt.toStringAsFixed(2);
-
-    // Format time
     String fmtTime;
     try {
       final dt = DateTime.parse(rawTime);
@@ -274,8 +261,6 @@ class BankTransferConfirmationScreenState
     } catch (_) {
       fmtTime = DateFormat('yyyy/MM/dd HH:mm:ss').format(DateTime.now());
     }
-
-    // Build map for PDF and DB
     final transactionData = {
       'transactionNumber': txnNum,
       'receiptNumber': txnNum,
@@ -297,7 +282,6 @@ class BankTransferConfirmationScreenState
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // DOWNLOAD & SAVE RECORD
             TextButton.icon(
               icon: const Icon(Icons.download_outlined, color: lightGreen),
               label: const Text(
@@ -324,14 +308,10 @@ class BankTransferConfirmationScreenState
                 }
               },
             ),
-
-            // SHARE (stub)
             TextButton.icon(
               icon: const Icon(Icons.share_outlined, color: lightGreen),
               label: const Text('Share', style: TextStyle(color: lightGreen)),
-              onPressed: () {
-                // TODO: implement share functionality
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -347,8 +327,6 @@ class BankTransferConfirmationScreenState
               style: TextStyle(fontSize: 16, color: lightGreen),
             ),
             const SizedBox(height: 50),
-
-            // Amount display
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -364,8 +342,6 @@ class BankTransferConfirmationScreenState
               ],
             ),
             const SizedBox(height: 35),
-
-            // Details
             Container(
               width: double.infinity,
               child: Column(
@@ -396,12 +372,8 @@ class BankTransferConfirmationScreenState
               ),
             ),
             const SizedBox(height: 30),
-
-            // Carousel
             _buildCarousel(),
             const SizedBox(height: 24),
-
-            // FINISHED button
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
               child: ElevatedButton(
