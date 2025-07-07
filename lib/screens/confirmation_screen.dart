@@ -29,6 +29,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
   @override
   void initState() {
     super.initState();
+    _autoSaveTransaction();
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_pageController.hasClients) {
         int next = _currentPage + 1;
@@ -47,6 +48,51 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
     _carouselTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _autoSaveTransaction() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+          {};
+      final double amount =
+          double.tryParse(args['amount']?.toString() ?? '0.0') ?? 0.0;
+      final String recipientName = args['name'] ?? 'Unknown Recipient';
+      final String phone = args['phone'] ?? '';
+      final double serviceFee = _calculateServiceFee(amount);
+      final double vatAmount = serviceFee * 0.15;
+
+      final transactionData = {
+        'transactionNumber': transactionNumber,
+        'receiptNumber': transactionNumber,
+        'transactionTime': formatDateTime(transactionTime),
+        'amount': formatAmount(amount),
+        'accountNumber': phone,
+        'name': recipientName,
+        'discountAmount': '0.00',
+        'serviceFee': formatAmount(serviceFee),
+        'vatAmount': formatAmount(vatAmount),
+      };
+
+      final pdfPath = await editAndSaveConfirmationPdf(
+        transactionData,
+        context,
+        autoSave: true,
+      );
+      if (pdfPath.isNotEmpty) {
+        final record = TransactionRecord(
+          type: 'Transfer Money',
+          amount: amount,
+          currency: '(ETB)',
+          counterparty: recipientName,
+          timestamp: formatDateTime(transactionTime),
+          pdfPath: pdfPath,
+          transactionNo: transactionNumber,
+          fee: serviceFee + vatAmount,
+        );
+        await DBHelper().insertTxn(record);
+      }
+    });
   }
 
   static String _generateTransactionNumber() {
@@ -87,7 +133,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
   }
 
   final List<String> _carouselImages = [
-    'assets/images/financial_services8.png',
+    'assets/images/financial_services9.png',
     'assets/images/financial_services6.png',
     'assets/images/financial_services2.png',
     'assets/images/financial_services3.png',

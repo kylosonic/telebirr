@@ -23,8 +23,9 @@ String formatPhoneNumber(String phone) {
 /// Edits and saves a bank transfer PDF using the 'sample.pdf' template.
 Future<String> editAndSaveBankTransferPdf(
   Map<String, dynamic> transactionData,
-  BuildContext context,
-) async {
+  BuildContext context, {
+  bool autoSave = false,
+}) async {
   try {
     final data = await rootBundle.load('assets/pdf/sample.pdf');
     final pdfBytes = data.buffer.asUint8List(
@@ -191,7 +192,7 @@ Future<String> editAndSaveBankTransferPdf(
     final file = File(filePath);
     await file.writeAsBytes(bytes, flush: true);
 
-    if (context.mounted) {
+    if (!autoSave && context.mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Receipt saved to $dirPath')));
@@ -214,8 +215,9 @@ Future<String> editAndSaveBankTransferPdf(
 /// and returns the file path of the saved PDF.
 Future<String> editAndSaveConfirmationPdf(
   Map<String, dynamic> transactionData,
-  BuildContext context,
-) async {
+  BuildContext context, {
+  bool autoSave = false,
+}) async {
   try {
     final data = await rootBundle.load('assets/pdf/sample_two.pdf');
     final pdfBytes = data.buffer.asUint8List(
@@ -381,7 +383,7 @@ Future<String> editAndSaveConfirmationPdf(
     );
     await file.writeAsBytes(bytes, flush: true);
 
-    if (context.mounted) {
+    if (!autoSave && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Confirmation PDF saved to $dirPath')),
       );
@@ -405,8 +407,9 @@ Future<String> editAndSaveConfirmationPdf(
 /// and returns the file path of the saved PDF.
 Future<String> editAndSaveMerchantConfirmationPdf(
   Map<String, dynamic> transactionData,
-  BuildContext context,
-) async {
+  BuildContext context, {
+  bool autoSave = false,
+}) async {
   try {
     // Load the PDF template
     final data = await rootBundle.load('assets/pdf/sample_three.pdf');
@@ -581,7 +584,7 @@ Future<String> editAndSaveMerchantConfirmationPdf(
     await file.writeAsBytes(bytes, flush: true);
 
     // Notify and open
-    if (context.mounted) {
+    if (!autoSave && context.mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Merchant PDF saved to $dirPath')));

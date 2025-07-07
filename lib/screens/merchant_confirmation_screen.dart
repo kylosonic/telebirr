@@ -31,7 +31,7 @@ class MerchantConfirmationScreenState
     _transactionTime = DateTime.now();
     _transactionNumber =
         'CCK${_transactionTime.millisecondsSinceEpoch.toString().substring(6)}';
-
+    _autoSaveTransaction();
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_pageController.hasClients) {
         var next = _currentPage + 1;
@@ -52,8 +52,51 @@ class MerchantConfirmationScreenState
     super.dispose();
   }
 
+  void _autoSaveTransaction() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final String merchantId = args['merchantId'] ?? '';
+      final double amount =
+          double.tryParse(args['amount']?.toString() ?? '0') ?? 0.0;
+      final String operatorId = args['operatorId'] ?? '';
+      final String formattedTime = formatDateTime(_transactionTime);
+
+      final transactionData = {
+        'merchantId': merchantId,
+        'operatorId': operatorId,
+        'amount': amount.toStringAsFixed(2),
+        'serviceFee': '0.00',
+        'vatAmount': '0.00',
+        'discountAmount': '0.00',
+        'receiptNumber': _transactionNumber,
+        'transactionTime': formattedTime,
+        'transactionNumber': _transactionNumber,
+      };
+
+      final pdfPath = await editAndSaveMerchantConfirmationPdf(
+        transactionData,
+        context,
+        autoSave: true,
+      );
+      if (pdfPath.isNotEmpty) {
+        final record = TransactionRecord(
+          type: 'Buy Goods',
+          amount: amount,
+          currency: '(ETB)',
+          counterparty: merchantId,
+          timestamp: formattedTime,
+          pdfPath: pdfPath,
+          transactionNo: _transactionNumber,
+          fee: 0.0,
+        );
+        await DBHelper().insertTxn(record);
+      }
+    });
+  }
+
   final List<String> _carouselImages = [
-    'assets/images/financial_services8.png',
+    'assets/images/financial_services9.png',
     'assets/images/financial_services6.png',
     'assets/images/financial_services2.png',
     'assets/images/financial_services3.png',

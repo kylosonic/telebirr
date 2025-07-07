@@ -46,6 +46,7 @@ class BankTransferConfirmationScreenState
   @override
   void initState() {
     super.initState();
+    _autoSaveTransaction();
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_pageController.hasClients) {
         int next = _currentPage + 1;
@@ -66,8 +67,81 @@ class BankTransferConfirmationScreenState
     super.dispose();
   }
 
+  void _autoSaveTransaction() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+          {};
+      final rawAmount = args['amount']?.toString() ?? '0.0';
+      final bank = args['bank'] ?? 'Unknown Bank';
+      final account = args['account'] ?? 'N/A';
+      final rawTime =
+          args['transactionTime'] ?? DateTime.now().toIso8601String();
+      final toName = args['name'] ?? 'User';
+      final txnNum = _transactionNumber;
+
+      final baseAmt = double.tryParse(rawAmount) ?? 0.0;
+      double fee;
+      if (baseAmt < 100) {
+        fee = 1.0;
+      } else if (baseAmt < 500) {
+        fee = 3.0;
+      } else if (baseAmt < 1500) {
+        fee = 6.0;
+      } else {
+        fee = 9.0;
+      }
+
+      final serviceFee = fee * 0.8;
+      final vatAmt = fee * 0.2;
+      final fmtService = serviceFee.toStringAsFixed(2);
+      final fmtVat = vatAmt.toStringAsFixed(2);
+      final fmtBaseAmt = baseAmt.toStringAsFixed(2);
+
+      String fmtTime;
+      try {
+        final dt = DateTime.parse(rawTime);
+        fmtTime = DateFormat('yyyy/MM/dd HH:mm:ss').format(dt);
+      } catch (_) {
+        fmtTime = DateFormat('yyyy/MM/dd HH:mm:ss').format(DateTime.now());
+      }
+
+      final transactionData = {
+        'transactionNumber': txnNum,
+        'receiptNumber': txnNum,
+        'transactionTime': fmtTime,
+        'amount': fmtBaseAmt,
+        'accountNumber': account,
+        'name': toName,
+        'bankName': bank,
+        'discountAmount': '0.00',
+        'serviceFee': fmtService,
+        'vatAmount': fmtVat,
+      };
+
+      final pdfPath = await editAndSaveBankTransferPdf(
+        transactionData,
+        context,
+        autoSave: true,
+      );
+      if (pdfPath.isNotEmpty) {
+        final record = TransactionRecord(
+          type: 'Transfer to Bank',
+          amount: baseAmt,
+          currency: '(ETB)',
+          counterparty: toName,
+          timestamp: fmtTime,
+          pdfPath: pdfPath,
+          transactionNo: txnNum,
+          fee: fee,
+        );
+        await DBHelper().insertTxn(record);
+      }
+    });
+  }
+
   final List<String> _carouselImages = [
-    'assets/images/financial_services8.png',
+    'assets/images/financial_services9.png',
     'assets/images/financial_services6.png',
     'assets/images/financial_services2.png',
     'assets/images/financial_services3.png',

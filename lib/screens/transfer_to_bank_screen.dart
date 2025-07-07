@@ -54,7 +54,7 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
   final PageController _pageController = PageController(viewportFraction: 1.0);
   int _currentPage = 0;
   final List<String> _carouselImages = [
-    'assets/images/financial_services8.png',
+    'assets/images/financial_services9.png',
     'assets/images/financial_services6.png',
     'assets/images/financial_services2.png',
     'assets/images/financial_services3.png',
