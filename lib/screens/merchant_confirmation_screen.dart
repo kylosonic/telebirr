@@ -111,7 +111,7 @@ class MerchantConfirmationScreenState
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.95,
             child: Container(
-              height: 110,
+              height: 90,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -342,7 +342,7 @@ class MerchantConfirmationScreenState
             ),
             const SizedBox(height: 30),
             _buildCarousel(context),
-            const SizedBox(height: 66),
+            const SizedBox(height: 36),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

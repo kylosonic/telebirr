@@ -156,7 +156,7 @@ class BankTransferConfirmationScreenState
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.95,
             child: Container(
-              height: 110,
+              height: 90,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -166,7 +166,7 @@ class BankTransferConfirmationScreenState
                 onPageChanged: (i) => setState(() => _currentPage = i),
                 itemBuilder:
                     (_, i) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
                         child: Image.asset(
@@ -343,7 +343,7 @@ class BankTransferConfirmationScreenState
                 ),
               ],
             ),
-            const SizedBox(height: 35),
+            const SizedBox(height: 15),
             Container(
               width: double.infinity,
               child: Column(
@@ -375,7 +375,7 @@ class BankTransferConfirmationScreenState
             ),
             const SizedBox(height: 30),
             _buildCarousel(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
               child: ElevatedButton(

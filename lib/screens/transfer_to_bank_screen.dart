@@ -102,6 +102,9 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
   void initState() {
     super.initState();
     _loadBankAccounts();
+    // Add listeners to update the button state
+    _accountController.addListener(() => setState(() {}));
+    _nameController.addListener(() => setState(() {}));
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (_pageController.hasClients) {
         int nextPage = _currentPage + 1;
@@ -166,24 +169,18 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
 
   // --- Carousel widget ---
   Widget _buildCarousel() {
-    return Column(
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.95,
-          child: Container(
-            height: 110,
-            padding: const EdgeInsets.symmetric(horizontal: 0),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+    return SizedBox(
+      height: 120, // Reduced height for the carousel
+      child: Column(
+        children: [
+          Expanded(
             child: PageView.builder(
               controller: _pageController,
               itemCount: _carouselImages.length,
               onPageChanged: (index) => setState(() => _currentPage = index),
               itemBuilder:
                   (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10.0),
                       child: Image.asset(
@@ -198,42 +195,42 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
                   ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_carouselImages.length, (index) {
-            final isActive = _currentPage == index;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-              width: isActive ? 10 : 6,
-              height: isActive ? 10 : 6,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: TransferToBankScreen.lightGreen,
-                  width: 1,
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(_carouselImages.length, (index) {
+              final isActive = _currentPage == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                width: isActive ? 10 : 6,
+                height: isActive ? 10 : 6,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                    color: TransferToBankScreen.lightGreen,
+                    width: 1,
+                  ),
+                  shape: BoxShape.circle,
                 ),
-                shape: BoxShape.circle,
-              ),
-              child:
-                  isActive
-                      ? Center(
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: TransferToBankScreen.lightGreen,
-                            shape: BoxShape.circle,
+                child:
+                    isActive
+                        ? Center(
+                          child: Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: TransferToBankScreen.lightGreen,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                      )
-                      : null,
-            );
-          }),
-        ),
-      ],
+                        )
+                        : null,
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
   // --- End Carousel Widget ---
@@ -248,11 +245,9 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       builder: (BuildContext context) {
-        // Wrap content in a container with max height to prevent full screen takeover
-        // Adjust maxHeight factor as needed (e.g., 0.6 for 60% of screen height)
         return Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7, // Limit height
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -266,10 +261,8 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  // Use Expanded inside the constrained container
                   child: GridView.builder(
-                    shrinkWrap:
-                        true, // Important for GridView inside Column/Expanded
+                    shrinkWrap: true,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -338,8 +331,13 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isNextButtonEnabled =
+        _accountController.text.isNotEmpty &&
+        _nameController.text.isNotEmpty &&
+        _selectedBank != null;
+
     return Scaffold(
-      // resizeToAvoidBottomInset: true, // This is the default, usually works well with SingleChildScrollView
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
@@ -348,119 +346,152 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
         ),
         title: const Text(
           'Transfer to Bank',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.black, fontSize: 18),
         ),
         elevation: 0,
       ),
-      // Wrap the body's Column in SingleChildScrollView
       body: SingleChildScrollView(
         child: Column(
-          // The main layout column
           children: [
-            const SizedBox(height: 8), // Add some top padding if needed
+            const SizedBox(height: 8),
             _buildCarousel(),
             const SizedBox(height: 16),
 
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // Bank Selection Button
-                  InkWell(
-                    onTap: () => _showBankSelectionGrid(context),
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Bank',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[200],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            _selectedBank ?? 'Select Bank',
-                            style: TextStyle(
-                              color:
-                                  _selectedBank == null
-                                      ? Colors.grey[600]
-                                      : Colors.black,
+            // Encapsulating the form in a Card
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Bank Selection Button
+                    InkWell(
+                      onTap: () => _showBankSelectionGrid(context),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Select Bank',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: TransferToBankScreen.lightGreen,
                             ),
                           ),
-                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                        ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              _selectedBank ?? 'Please Choose',
+                              style: TextStyle(
+                                color:
+                                    _selectedBank == null
+                                        ? Colors.grey[600]
+                                        : Colors.black,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Recipient Name TextField
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Recipient Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 16),
+                    // Recipient Name TextField
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Recipient Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: TransferToBankScreen.lightGreen,
+                          ),
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.words,
                     ),
-                    keyboardType: TextInputType.text,
-                    textCapitalization:
-                        TextCapitalization.words, // Optional: Capitalize names
-                  ),
-                  const SizedBox(height: 16),
-                  // Account Number TextField
-                  TextField(
-                    controller: _accountController,
-                    decoration: InputDecoration(
-                      labelText: 'Account No',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 16),
+                    // Account Number TextField
+                    TextField(
+                      controller: _accountController,
+                      decoration: InputDecoration(
+                        labelText: 'Account No',
+                        hintText: 'Enter Account Number',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade400),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: TransferToBankScreen.lightGreen,
+                          ),
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
+                      keyboardType: TextInputType.number,
                     ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  // Next Button
-                  ElevatedButton(
-                    onPressed: _handleNext,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      backgroundColor:
-                          _accountController.text.isNotEmpty &&
-                                  _nameController.text.isNotEmpty &&
-                                  _selectedBank != null
-                              ? TransferToBankScreen.lightGreen
-                              : Colors.grey,
-                      foregroundColor: Colors.white,
+                    const SizedBox(height: 24),
+                    // Next Button
+                    ElevatedButton(
+                      onPressed: isNextButtonEnabled ? _handleNext : null,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        backgroundColor:
+                            isNextButtonEnabled
+                                ? TransferToBankScreen.lightGreen
+                                : Colors.grey,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Next', style: TextStyle(fontSize: 16)),
                     ),
-                    child: const Text('Next', style: TextStyle(fontSize: 16)),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             // --- Recent Transactions Section ---
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                0,
-                16,
-                8,
-              ), // Adjusted padding
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Recent',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                      fontSize: 16,
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete_outline, color: Colors.grey),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -473,40 +504,42 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
                 ],
               ),
             ),
-            // ListView needs shrinkWrap and NeverScrollableScrollPhysics
             ListView.builder(
-              shrinkWrap:
-                  true, // Make ListView only occupy space needed by its children
-              physics:
-                  const NeverScrollableScrollPhysics(), // Disable ListView's own scrolling
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: bankAccounts.length,
               itemBuilder: (context, index) {
                 final account = bankAccounts[index];
                 final name =
-                    account['name'] ??
-                    'User ${account['BEKELE MOLLA HOTEL PLC']}';
+                    account['name'] ?? 'User ${account['id'] ?? index}';
+                final bankName = account['bank_name'] ?? 'Unknown Bank';
+                final accountNumber =
+                    account['account_number'] ?? 'Not available';
 
                 return Card(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 4,
                   ),
-                  elevation: 1,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: TransferToBankScreen.lightGreen
-                          .withOpacity(0.2),
+                      backgroundColor: Colors.grey.shade200,
                       child: const Icon(
                         Icons.account_balance,
-                        color: TransferToBankScreen.lightGreen,
+                        color: Colors.black54,
                       ),
                     ),
                     title: Text(
                       name,
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    subtitle: Text(
-                      '${account['bank_name']} • ${account['account_number']}',
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [Text(bankName), Text('($accountNumber)')],
                     ),
                     trailing: const Icon(
                       Icons.arrow_forward_ios,
@@ -528,8 +561,7 @@ class TransferToBankScreenState extends State<TransferToBankScreen> {
                 );
               },
             ),
-            const SizedBox(height: 16), // Add some padding at the very bottom
-            // --- End Recent Transactions Section ---
+            const SizedBox(height: 16),
           ],
         ),
       ),

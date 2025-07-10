@@ -143,7 +143,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
     return Column(
       children: [
         Container(
-          height: 110,
+          height: 90,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.0)),
           child: PageView.builder(
             controller: _pageController,
@@ -344,7 +344,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
             ),
             const SizedBox(height: 20),
             _buildCarousel(),
-            const SizedBox(height: 80),
+            const SizedBox(height: 50),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
               child: ElevatedButton(
