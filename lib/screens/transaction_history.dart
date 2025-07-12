@@ -358,7 +358,7 @@ class TransactionDetailScreen extends StatelessWidget {
                 '-${transaction.fee.toStringAsFixed(2)} ${transaction.currency}',
                 isBlue: true,
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 4),
               GestureDetector(
                 onTap: () {
                   OpenFile.open(transaction.pdfPath);
@@ -366,8 +366,8 @@ class TransactionDetailScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 50,
+                      height: 50,
                       decoration: BoxDecoration(
                         color: Color.fromARGB(
                           255,
@@ -379,8 +379,8 @@ class TransactionDetailScreen extends StatelessWidget {
                       ),
                       child: Image.asset(
                         'assets/images/get.png',
-                        width: 100,
-                        height: 100,
+                        width: 10,
+                        height: 10,
                       ),
                     ),
                     SizedBox(height: 0),
