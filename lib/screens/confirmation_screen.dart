@@ -99,7 +99,7 @@ class ConfirmationScreenState extends State<ConfirmationScreen> {
     const length = 10;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final rand = Random();
-    String txn = 'C';
+    String txn = 'CG';
     for (var i = 1; i < length; i++) {
       txn += chars[rand.nextInt(chars.length)];
     }

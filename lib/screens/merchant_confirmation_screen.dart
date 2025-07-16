@@ -29,7 +29,7 @@ class MerchantConfirmationScreenState
     super.initState();
     _transactionTime = DateTime.now();
     _transactionNumber =
-        'CCK${_transactionTime.millisecondsSinceEpoch.toString().substring(6)}';
+        'CGK${_transactionTime.millisecondsSinceEpoch.toString().substring(6)}';
     _autoSaveTransaction();
     _carouselTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (_pageController.hasClients) {
