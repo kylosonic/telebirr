@@ -379,8 +379,8 @@ class TransactionDetailScreen extends StatelessWidget {
                       ),
                       child: Image.asset(
                         'assets/images/get.png',
-                        width: 10,
-                        height: 10,
+                        width: 100,
+                        height: 100,
                       ),
                     ),
                     SizedBox(height: 0),
